@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOJI KITCHEN</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #18120c;
+  --ink2: #4a3b2e;
+  --cream: #f7f2ea;
+  --warm: #faf7f2;
+  --gold: #c4883a;
+  --gold2: #e8b86d;
+  --gold-dim: rgba(196,136,58,0.15);
+  --border: rgba(196,136,58,0.22);
+  --green: #4a6b3f;
+  --red: #8b3a2e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh;animation:fadeIn 0.3s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== HEADER ===== */
+.app-header{
+  background:var(--ink);height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;position:sticky;top:0;z-index:100;
+}
+.app-logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:var(--gold);letter-spacing:0.06em;}
+.app-logo small{font-family:'Shippori Mincho',serif;font-size:0.65rem;color:#777;margin-left:6px;}
+.back-btn{background:none;border:none;color:var(--gold);font-size:1rem;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit;font-size:0.8rem;padding:4px 0;}
+.header-action{background:none;border:1.5px solid var(--gold);color:var(--gold);padding:4px 12px;border-radius:20px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+.header-action:hover,.header-action.active{background:var(--gold);color:var(--ink);}
+
+/* ===== HOME ===== */
+.home-hero{
+  background:var(--ink);
+  padding:32px 20px 28px;
+  text-align:center;
+  border-bottom:2px solid var(--gold);
+  position:relative;overflow:hidden;
+}
+.home-hero::before{
+  content:'麹';position:absolute;
+  font-family:'Shippori Mincho',serif;font-size:10rem;
+  color:rgba(196,136,58,0.06);top:-20px;left:50%;transform:translateX(-50%);
+  pointer-events:none;line-height:1;
+}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-family:'Shippori Mincho',serif;font-size:clamp(1.6rem,5vw,2.4rem);color:var(--warm);line-height:1.35;margin-bottom:6px;}
+.hero-sub{font-size:0.78rem;color:#888;font-weight:300;}
+
+.section-label{
+  font-size:0.65rem;letter-spacing:0.2em;color:var(--gold);font-weight:700;
+  padding:14px 18px 6px;text-transform:uppercase;
+}
+.koji-grid{padding:0 14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.koji-card{
+  background:white;border-radius:14px;border:1px solid var(--border);
+  overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
+  animation:fadeUp 0.4s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.koji-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,0.12);}
+.koji-card-thumb{
+  height:90px;display:flex;align-items:center;justify-content:center;
+  font-size:2.6rem;position:relative;
+}
+.koji-type-badge{
+  position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  background:rgba(24,18,12,0.7);color:var(--gold2);
+  font-size:0.6rem;padding:2px 8px;border-radius:10px;white-space:nowrap;font-weight:700;letter-spacing:0.05em;
+}
+.koji-card-body{padding:10px 12px 12px;}
+.koji-card-name{font-family:'Shippori Mincho',serif;font-size:0.95rem;margin-bottom:3px;}
+.koji-card-desc{font-size:0.68rem;color:var(--ink2);line-height:1.5;}
+.koji-card-meta{display:flex;gap:8px;margin-top:7px;font-size:0.62rem;color:#aaa;}
+
+.fab-add{
+  position:fixed;bottom:22px;right:18px;
+  background:var(--gold);color:var(--ink);border:none;
+  border-radius:50%;width:50px;height:50px;font-size:1.3rem;
+  cursor:pointer;z-index:200;
+  box-shadow:0 4px 16px rgba(196,136,58,0.45);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s;
+}
+.fab-add:hover{transform:scale(1.08);}
+
+/* ===== KOJI DETAIL ===== */
+#screenDetail{background:#ffffff;}
+.koji-detail-hero{
+  min-height:160px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  position:relative;padding:24px 20px 20px;
+}
+.koji-detail-emoji{font-size:4rem;margin-bottom:8px;}
+.koji-detail-type{font-size:0.65rem;letter-spacing:0.2em;color:var(--gold);font-weight:700;margin-bottom:4px;}
+.koji-detail-name{font-family:'Shippori Mincho',serif;font-size:1.8rem;color:var(--ink);margin-bottom:6px;text-align:center;}
+.koji-detail-desc{font-size:0.9rem;color:var(--ink2);text-align:center;line-height:1.7;}
+.koji-detail-meta{
+  display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.kdmi{flex:1;text-align:center;padding:12px 6px;border-right:1px solid var(--border);}
+.kdmi:last-child{border-right:none;}
+.kdmi .v{font-size:1.05rem;font-weight:700;color:var(--gold);}
+.kdmi .l{font-size:0.7rem;color:#888;margin-top:3px;}
+
+.recipe-section{padding:0 16px 16px;background:#fff;}
+.recipe-sec-title{
+  font-size:0.8rem;font-weight:700;letter-spacing:0.12em;color:var(--gold);
+  padding:16px 0 10px;border-bottom:2px solid var(--border);margin-bottom:12px;
+}
+.ing-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.ing-chip{
+  background:#fff8ee;border:1.5px solid var(--border);
+  color:var(--ink);font-size:0.9rem;padding:6px 14px;border-radius:20px;font-weight:500;
+}
+.step-item{display:flex;gap:12px;margin-bottom:14px;font-size:1rem;line-height:1.8;color:var(--ink);}
+.step-n{
+  width:28px;height:28px;background:var(--gold);color:var(--ink);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:700;flex-shrink:0;margin-top:4px;
+}
+.point-box{
+  background:#fffbf3;border:1.5px solid var(--gold);border-left:4px solid var(--gold);
+  border-radius:8px;padding:14px 16px;margin-bottom:14px;
+  font-size:0.95rem;line-height:1.75;color:var(--ink);
+}
+
+.cook-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;background:var(--ink);color:var(--gold);border:none;
+  padding:14px;border-radius:12px;font-family:inherit;font-size:0.95rem;
+  font-weight:700;cursor:pointer;margin:16px 0;letter-spacing:0.05em;
+  transition:background 0.2s;
+}
+.cook-btn:hover{background:#2a1f14;}
+.cook-btn .arrow{font-size:1rem;}
+
+/* ===== COOKING SCREEN ===== */
+.cooking-koji-info{
+  background:var(--ink);padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:2px solid var(--gold);
+}
+.cki-emoji{font-size:1.8rem;}
+.cki-name{font-family:'Shippori Mincho',serif;font-size:1rem;color:var(--gold);}
+.cki-sub{font-size:0.7rem;color:#888;margin-top:2px;}
+
+.cooking-body{padding:16px;}
+
+/* 食材入力 */
+.input-area{background:white;border-radius:12px;border:1px solid var(--border);padding:14px;margin-bottom:14px;}
+.input-area-title{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;color:var(--gold);margin-bottom:10px;}
+.food-text-row{display:flex;gap:8px;margin-bottom:12px;}
+.food-text-input{
+  flex:1;border:1.5px solid var(--border);border-radius:8px;
+  padding:9px 12px;font-family:inherit;font-size:0.88rem;color:var(--ink);
+  outline:none;transition:border-color 0.2s;background:var(--cream);
+}
+.food-text-input:focus{border-color:var(--gold);}
+.btn-add-ing{
+  background:var(--gold);color:var(--ink);border:none;
+  padding:9px 14px;border-radius:8px;font-family:inherit;font-size:0.82rem;
+  font-weight:700;cursor:pointer;white-space:nowrap;
+}
+
+.selected-ings{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin-bottom:10px;}
+.sel-chip{
+  background:var(--ink);color:var(--gold2);
+  font-size:0.72rem;padding:4px 10px 4px 10px;border-radius:20px;
+  display:flex;align-items:center;gap:5px;cursor:pointer;
+}
+.sel-chip .rm{font-size:0.7rem;color:#888;line-height:1;}
+.no-ing{font-size:0.75rem;color:#bbb;padding:4px 0;}
+
+/* よく使う食材 */
+.quick-ings{display:flex;flex-wrap:wrap;gap:6px;}
+.quick-btn{
+  border:1.5px solid var(--border);background:white;
+  border-radius:20px;padding:4px 11px;
+  font-size:0.72rem;cursor:pointer;font-family:inherit;
+  color:var(--ink2);transition:all 0.15s;
+}
+.quick-btn:hover,.quick-btn.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--ink);}
+
+/* 冷蔵庫 */
+.fridge-toggle{
+  width:100%;background:none;border:1.5px solid var(--border);
+  border-radius:8px;padding:9px 14px;font-family:inherit;font-size:0.8rem;
+  color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;
+}
+.fridge-panel{display:none;background:white;border-radius:12px;border:1px solid var(--border);padding:14px;margin-bottom:14px;}
+.fridge-panel.open{display:block;}
+.fridge-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.fridge-chip{
+  border:1.5px solid var(--border);background:var(--cream);
+  border-radius:20px;padding:4px 10px;
+  font-size:0.72rem;cursor:pointer;font-family:inherit;color:var(--ink2);
+  display:flex;align-items:center;gap:4px;transition:all 0.15s;
+}
+.fridge-chip:hover,.fridge-chip.sel{background:var(--gold-dim);border-color:var(--gold);}
+.fridge-chip .del{color:#ccc;font-size:0.65rem;margin-left:2px;}
+.fridge-add-row{display:flex;gap:8px;}
+.fridge-input{
+  flex:1;border:1.5px solid var(--border);border-radius:8px;
+  padding:7px 10px;font-family:inherit;font-size:0.82rem;color:var(--ink);
+  background:var(--cream);outline:none;
+}
+.fridge-input:focus{border-color:var(--gold);}
+.btn-fridge-add{
+  background:var(--green);color:white;border:none;
+  padding:7px 12px;border-radius:8px;font-family:inherit;font-size:0.78rem;cursor:pointer;
+}
+
+/* 条件 */
+.cond-row{display:flex;gap:10px;margin-bottom:14px;}
+.cond-group{flex:1;}
+.cond-label{font-size:0.67rem;font-weight:700;letter-spacing:0.08em;color:var(--ink2);margin-bottom:5px;}
+.cond-select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:0.82rem;color:var(--ink);background:white;outline:none;}
+
+/* 生成ボタン */
+.gen-btn{
+  width:100%;background:var(--gold);color:var(--ink);border:none;
+  padding:14px;border-radius:12px;font-family:inherit;font-size:1rem;
+  font-weight:700;cursor:pointer;letter-spacing:0.05em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background 0.2s;box-shadow:0 4px 16px rgba(196,136,58,0.3);
+}
+.gen-btn:hover:not(:disabled){background:var(--gold2);}
+.gen-btn:disabled{opacity:0.45;cursor:not-allowed;}
+
+/* ===== RESULT SCREEN ===== */
+.result-koji-bar{
+  background:var(--ink);padding:10px 16px;
+  display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gold);
+}
+.rkb-emoji{font-size:1.4rem;}
+.rkb-text{font-size:0.72rem;color:#888;}
+.rkb-text strong{color:var(--gold);}
+
+.ai-loading{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 20px;text-align:center;
+}
+.koji-spinner{
+  width:56px;height:56px;position:relative;margin:0 auto 20px;
+}
+.koji-spinner::before,.koji-spinner::after{
+  content:'';position:absolute;border-radius:50%;
+  border:3px solid transparent;
+}
+.koji-spinner::before{
+  inset:0;border-top-color:var(--gold);animation:spin 0.9s linear infinite;
+}
+.koji-spinner::after{
+  inset:8px;border-top-color:var(--gold2);animation:spin 0.6s linear infinite reverse;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-loading-text{font-family:'Shippori Mincho',serif;font-size:1rem;color:var(--ink);margin-bottom:6px;}
+.ai-loading-sub{font-size:0.72rem;color:#aaa;}
+
+.result-body{padding:16px;}
+.result-title{font-family:'Shippori Mincho',serif;font-size:1.5rem;margin-bottom:6px;line-height:1.35;}
+.result-subtitle{font-size:0.78rem;color:var(--ink2);line-height:1.6;margin-bottom:14px;}
+.result-meta{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.rmi{flex:1;text-align:center;padding:10px 4px;border-right:1px solid var(--border);}
+.rmi:last-child{border-right:none;}
+.rmi .v{font-size:0.95rem;font-weight:700;color:var(--gold);}
+.rmi .l{font-size:0.58rem;color:#aaa;margin-top:2px;}
+.result-sec{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;color:var(--gold);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.result-ings{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.result-ing-chip{background:var(--gold-dim);border:1px solid var(--border);font-size:0.75rem;padding:3px 10px;border-radius:20px;color:var(--ink);}
+.result-step{display:flex;gap:10px;margin-bottom:10px;font-size:0.82rem;line-height:1.65;color:var(--ink2);}
+.result-point{background:var(--gold-dim);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;font-size:0.8rem;line-height:1.6;color:var(--ink2);}
+.result-actions{display:flex;gap:8px;margin-top:16px;}
+.btn-save-result{flex:2;background:var(--ink);color:var(--gold);border:none;padding:11px;border-radius:10px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;}
+.btn-retry{flex:1;background:none;border:1.5px solid var(--border);color:var(--ink2);padding:11px;border-radius:10px;font-family:inherit;font-size:0.82rem;cursor:pointer;}
+
+/* ===== OVERLAYS ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(24,18,12,0.78);z-index:300;align-items:flex-end;justify-content:center;padding:0;}
+.overlay.open{display:flex;}
+.sheet{
+  background:var(--warm);border-radius:20px 20px 0 0;
+  width:100%;max-width:560px;max-height:92vh;overflow-y:auto;
+  animation:sheetUp 0.3s ease;
+}
+@keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0;}
+.sheet-head{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sheet-head h2{font-family:'Shippori Mincho',serif;font-size:1.05rem;color:var(--ink);}
+.btn-sheet-close{background:none;border:none;font-size:1.2rem;color:#aaa;cursor:pointer;}
+.sheet-body{padding:16px 18px 24px;}
+
+/* ADD KOJI FORM */
+.form-g{margin-bottom:13px;}
+.form-g label{display:block;font-size:0.68rem;font-weight:700;color:var(--ink2);margin-bottom:4px;letter-spacing:0.04em;}
+.form-g input,.form-g select,.form-g textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;font-family:inherit;font-size:0.85rem;color:var(--ink);background:white;outline:none;transition:border-color 0.2s;}
+.form-g input:focus,.form-g select:focus,.form-g textarea:focus{border-color:var(--gold);}
+.form-g textarea{resize:vertical;min-height:68px;line-height:1.6;}
+.form-row-2{display:flex;gap:10px;}
+.form-row-2 .form-g{flex:1;}
+.emoji-row{display:flex;gap:6px;flex-wrap:wrap;}
+.ep{width:36px;height:36px;border:2px solid var(--border);border-radius:8px;background:white;font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.ep.sel{border-color:var(--gold);background:var(--gold-dim);}
+
+/* SCAN SHEET */
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:26px 16px;text-align:center;cursor:pointer;background:white;position:relative;margin-bottom:12px;transition:all 0.2s;}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:var(--gold-dim);}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{font-size:2rem;margin-bottom:6px;}
+.dz-text{font-size:0.8rem;color:var(--ink2);line-height:1.5;}
+.dz-text strong{color:var(--gold);}
+.img-prev{display:none;position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;}
+.img-prev img{width:100%;max-height:220px;object-fit:contain;background:#f0ebe3;display:block;}
+.btn-repick{position:absolute;top:7px;right:7px;background:rgba(24,18,12,0.7);color:white;border:none;padding:4px 9px;border-radius:5px;font-size:0.7rem;cursor:pointer;font-family:inherit;}
+.btn-ai-read{width:100%;background:var(--ink);color:var(--gold);border:none;padding:11px;border-radius:8px;font-family:inherit;font-size:0.88rem;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;}
+.btn-ai-read:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-ai-read:hover:not(:disabled){background:#2a1f14;}
+.ai-scan-loading{display:none;text-align:center;padding:18px;background:white;border-radius:8px;margin-bottom:10px;border:1px solid var(--border);}
+.mini-spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 8px;}
+.ai-scan-loading p{font-size:0.78rem;color:var(--ink2);}
+.parsed-ok{display:none;}
+.ai-ok-note{display:flex;align-items:center;gap:6px;background:#f0faf0;border:1px solid #9bc;border-radius:7px;padding:7px 11px;margin-bottom:10px;font-size:0.75rem;color:var(--green);}
+.sheet-actions{display:flex;gap:8px;margin-top:16px;}
+.btn-sheet-cancel{flex:1;background:none;border:1.5px solid var(--border);padding:9px;border-radius:8px;font-family:inherit;font-size:0.82rem;cursor:pointer;color:var(--ink2);}
+.btn-sheet-save{flex:2;background:var(--gold);border:none;padding:9px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;color:var(--ink);transition:background 0.2s;}
+.btn-sheet-save:hover{background:#e8a84a;}
+
+/* BG COLORS */
+.bg-amber{background:linear-gradient(135deg,#f5e6c0,#e8c060);}
+.bg-chestnut{background:linear-gradient(135deg,#ead5bb,#c49060);}
+.bg-garnet{background:linear-gradient(135deg,#f0d0c8,#d08878);}
+.bg-moss{background:linear-gradient(135deg,#d0e8c8,#88b880);}
+.bg-slate{background:linear-gradient(135deg,#c8d8e8,#7898b8);}
+.bg-plum{background:linear-gradient(135deg,#e0d0f0,#a878d0);}
+.bg-charcoal{background:linear-gradient(135deg,#c8c4c0,#888480);}
+
+@media(max-width:480px){
+  .koji-grid{grid-template-columns:repeat(2,1fr);}
+  .form-row-2{flex-direction:column;gap:0;}
+  .cond-row{flex-direction:column;gap:8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== SCREEN: HOME ====== -->
+<div class="screen active" id="screenHome">
+  <div class="app-header">
+    <div class="app-logo">KOJI KITCHEN <small>麹調味料ガイド</small></div>
+    <button class="header-action" onclick="openScanSheet()">📷 手書きを読む</button>
+  </div>
+  <div class="home-hero">
+    <div class="hero-eyebrow">Fermented Seasoning Guide</div>
+    <div class="hero-title">麹調味料から<br>はじまる料理</div>
+    <div class="hero-sub">麹の仕込み方を記録 → その麹でレシピをAI生成</div>
+  </div>
+  <div class="section-label">麹調味料レシピ</div>
+  <div class="koji-grid" id="kojiGrid"></div>
+  <button class="fab-add" onclick="openAddSheet()" title="麹レシピを追加">＋</button>
+</div>
+
+<!-- ====== SCREEN: KOJI DETAIL ====== -->
+<div class="screen" id="screenDetail">
+  <div class="app-header">
+    <button class="back-btn" onclick="goHome()">← 一覧に戻る</button>
+    <button class="header-action" onclick="editCurrentKoji()">✏️ 編集</button>
+  </div>
+  <div class="koji-detail-hero" id="detailHero">
+    <div class="koji-detail-emoji" id="detailEmoji"></div>
+    <div class="koji-detail-type" id="detailType"></div>
+    <div class="koji-detail-name" id="detailName"></div>
+    <div class="koji-detail-desc" id="detailDesc"></div>
+  </div>
+  <div class="koji-detail-meta" id="detailMeta"></div>
+  <div class="recipe-section">
+    <div class="recipe-sec-title">材 料</div>
+    <div class="ing-chips" id="detailIngChips"></div>
+    <div class="recipe-sec-title">仕込み方</div>
+    <div id="detailSteps"></div>
+    <div id="detailPoint"></div>
+    <button class="cook-btn" onclick="goCooking()">
+      <span>この麹で料理レシピをつくる</span>
+      <span class="arrow">→</span>
+    </button>
+  </div>
+</div>
+
+<!-- ====== SCREEN: COOKING (食材入力) ====== -->
+<div class="screen" id="screenCooking">
+  <div class="app-header">
+    <button class="back-btn" onclick="goDetail()">← 麹に戻る</button>
+    <div style="font-size:0.72rem;color:#888">料理レシピ生成</div>
+  </div>
+  <div class="cooking-koji-info">
+    <div class="cki-emoji" id="ckEmoji"></div>
+    <div>
+      <div class="cki-name" id="ckName"></div>
+      <div class="cki-sub">を使った料理をAIが提案します</div>
+    </div>
+  </div>
+  <div class="cooking-body">
+
+    <!-- 食材入力 -->
+    <div class="input-area">
+      <div class="input-area-title">🥬 使いたい食材を選ぶ</div>
+      <div class="food-text-row">
+        <input type="text" class="food-text-input" id="ingInput" placeholder="例：鶏肉、じゃがいも..." onkeydown="if(event.key==='Enter')addIngredient()">
+        <button class="btn-add-ing" onclick="addIngredient()">追加</button>
+      </div>
+      <div class="selected-ings" id="selectedIngs">
+        <span class="no-ing">食材を追加してください</span>
+      </div>
+      <div style="font-size:0.68rem;color:#aaa;margin-bottom:8px;">よく使う食材</div>
+      <div class="quick-ings" id="quickIngs"></div>
+    </div>
+
+    <!-- 冷蔵庫 -->
+    <button class="fridge-toggle" onclick="toggleFridge()">
+      <span>🧊 冷蔵庫の食材から選ぶ <span id="fridgeCount" style="color:var(--gold);font-size:0.7rem;"></span></span>
+      <span id="fridgeArrow">▼</span>
+    </button>
+    <div class="fridge-panel" id="fridgePanel">
+      <div class="fridge-list" id="fridgeList"></div>
+      <div class="fridge-add-row">
+        <input type="text" class="fridge-input" id="fridgeInput" placeholder="食材を登録..." onkeydown="if(event.key==='Enter')addFridge()">
+        <button class="btn-fridge-add" onclick="addFridge()">登録</button>
+      </div>
+    </div>
+
+    <!-- 条件 -->
+    <div class="cond-row">
+      <div class="cond-group">
+        <div class="cond-label">人数</div>
+        <select class="cond-select" id="servings">
+          <option value="1">1人分</option>
+          <option value="2" selected>2人分</option>
+          <option value="4">4人分</option>
+        </select>
+      </div>
+      <div class="cond-group">
+        <div class="cond-label">調理時間</div>
+        <select class="cond-select" id="cookTime">
+          <option value="15分以内">15分以内</option>
+          <option value="30分以内" selected>30分以内</option>
+          <option value="1時間以内">1時間以内</option>
+          <option value="時間をかけてOK">時間をかけてOK</option>
+        </select>
+      </div>
+      <div class="cond-group">
+        <div class="cond-label">難易度</div>
+        <select class="cond-select" id="difficulty">
+          <option value="かんたん">かんたん</option>
+          <option value="ふつう" selected>ふつう</option>
+          <option value="本格的">本格的</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generateRecipe()">
+      ✨ AIでレシピを生成する
+    </button>
+  </div>
+</div>
+
+<!-- ====== SCREEN: RESULT ====== -->
+<div class="screen" id="screenResult">
+  <div class="app-header">
+    <button class="back-btn" onclick="goBack()">← やり直す</button>
+    <div style="font-size:0.72rem;color:#888">生成されたレシピ</div>
+  </div>
+  <div class="result-koji-bar">
+    <div class="rkb-emoji" id="rkEmoji"></div>
+    <div class="rkb-text"><strong id="rkName"></strong> を使ったレシピ</div>
+  </div>
+  <div id="aiLoadingArea" class="ai-loading">
+    <div class="koji-spinner"></div>
+    <div class="ai-loading-text">レシピを考えています...</div>
+    <div class="ai-loading-sub">食材と麹の組み合わせを最適化中</div>
+  </div>
+  <div class="result-body" id="resultBody" style="display:none"></div>
+</div>
+
+<!-- ====== SHEET: ADD/EDIT KOJI ====== -->
+<div class="overlay" id="addOverlay">
+<div class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h2 id="addSheetTitle">✚ 麹レシピを追加</h2>
+    <button class="btn-sheet-close" onclick="closeAddSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <input type="hidden" id="editKojiId">
+    <div class="form-g"><label>絵文字</label>
+      <div class="emoji-row" id="kojiEmojiPicker">
+        <button class="ep sel" data-e="🫙" onclick="selKojiEmoji(this)">🫙</button>
+        <button class="ep" data-e="🍶" onclick="selKojiEmoji(this)">🍶</button>
+        <button class="ep" data-e="🫘" onclick="selKojiEmoji(this)">🫘</button>
+        <button class="ep" data-e="🌾" onclick="selKojiEmoji(this)">🌾</button>
+        <button class="ep" data-e="🧂" onclick="selKojiEmoji(this)">🧂</button>
+        <button class="ep" data-e="🍯" onclick="selKojiEmoji(this)">🍯</button>
+        <button class="ep" data-e="🫕" onclick="selKojiEmoji(this)">🫕</button>
+        <button class="ep" data-e="🥣" onclick="selKojiEmoji(this)">🥣</button>
+      </div>
+    </div>
+    <div class="form-g"><label>麹調味料の名前 *</label><input type="text" id="f-name" placeholder="例：塩麹、醤油麹、あずき麹"></div>
+    <div class="form-row-2">
+      <div class="form-g"><label>種類タグ</label>
+        <select id="f-type">
+          <option value="塩麹">塩麹</option><option value="醤油麹">醤油麹</option>
+          <option value="あずき麹">あずき麹</option><option value="甘酒">甘酒</option>
+          <option value="味噌">味噌</option><option value="米麹">米麹</option><option value="その他">その他</option>
+        </select>
+      </div>
+      <div class="form-g"><label>仕込み期間</label><input type="text" id="f-period" placeholder="例：7〜10日"></div>
+    </div>
+    <div class="form-g"><label>ひとこと（特徴・使い方）</label><input type="text" id="f-desc" placeholder="例：万能調味料。肉・魚をやわらかく"></div>
+    <div class="form-g"><label>材料（1行1つ）</label><textarea id="f-ing" placeholder="米麹 200g&#10;塩 60g&#10;水 240ml"></textarea></div>
+    <div class="form-g"><label>仕込み方（1行1ステップ）</label><textarea id="f-steps" rows="5" placeholder="米麹をほぐす&#10;塩・水と混ぜる&#10;清潔な瓶に入れ常温で保管"></textarea></div>
+    <div class="form-g"><label>ポイント・コツ（任意）</label><textarea id="f-point" rows="2" placeholder="1日1回かき混ぜると均一に発酵します"></textarea></div>
+    <div class="form-row-2">
+      <div class="form-g"><label>保存方法</label><input type="text" id="f-storage" placeholder="例：冷蔵庫で3ヶ月"></div>
+      <div class="form-g"><label>背景カラー</label>
+        <select id="f-bg">
+          <option value="bg-amber">アンバー</option><option value="bg-chestnut">チェスナット</option>
+          <option value="bg-garnet">ガーネット</option><option value="bg-moss">モス</option>
+          <option value="bg-slate">スレート</option><option value="bg-plum">プラム</option>
+          <option value="bg-charcoal">チャコール</option>
+        </select>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-sheet-cancel" onclick="closeAddSheet()">キャンセル</button>
+      <button class="btn-sheet-save" onclick="saveKoji()">保存する</button>
+    </div>
+    <div style="text-align:center;margin-top:14px;">
+      <button style="background:none;border:none;color:#d88;font-size:0.75rem;cursor:pointer;" onclick="deleteCurrentKoji()" id="btnDeleteKoji">削除する</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ====== SHEET: SCAN ====== -->
+<div class="overlay" id="scanOverlay">
+<div class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h2>📷 手書きメモを読み取る</h2>
+    <button class="btn-sheet-close" onclick="closeScanSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" onchange="onFile(event)">
+      <div class="dz-icon">🗒️</div>
+      <div class="dz-text"><strong>写真を選択またはドロップ</strong><br>麹の仕込みメモ・ノートOK</div>
+    </div>
+    <div class="img-prev" id="imgPrev">
+      <img id="prevImg" src="" alt="">
+      <button class="btn-repick" onclick="resetScan()">変更</button>
+    </div>
+    <button class="btn-ai-read" id="btnAIRead" onclick="runScanAI()" disabled>✨ AIでレシピを読み取る</button>
+    <div class="ai-scan-loading" id="aiScanLoading">
+      <div class="mini-spinner"></div>
+      <p>手書きを解析中...</p>
+    </div>
+    <div class="parsed-ok" id="parsedOk">
+      <div class="ai-ok-note">✅ 読み取り完了！内容を確認して保存してください</div>
+      <!-- フォームは addOverlay と共用 → 読み取り後 addOverlay に転記して開く -->
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ==================== STATE ====================
+const DB = 'koji_main_v1';
+const FRIDGE_DB = 'koji_fridge_v1';
+let kojis = [], fridge = [], selIngs = [], curKojiId = null, scanImgB64 = null;
+
+const QUICK_FOODS = ['鶏肉','豚肉','牛肉','鮭','白身魚','豆腐','卵','キャベツ','玉ねぎ','じゃがいも','にんじん','大根','なす','トマト','ほうれん草','きのこ','ごぼう','白米','パスタ'];
+
+const SAMPLES = [
+  {
+    id:'k1',emoji:'🫙',name:'塩麹',type:'塩麹',period:'7〜10日（常温）',
+    desc:'万能発酵調味料。肉・魚をやわらかくし旨味をアップ',
+    ingredients:['米麹 200g','塩 60g','水 260ml'],
+    steps:[
+      '米麹をよくほぐす',
+      '塩・水を加えてよく混ぜる',
+      '清潔な瓶に入れ、ふたを軽くのせる',
+      '常温で7〜10日、1日1回かき混ぜる',
+      '麹が指で潰せるくらい柔らかくなったら完成。冷蔵保存'
+    ],
+    point:'夏は5〜7日、冬は2週間ほど。麹粒がとろりと柔らかくなったら完成のサイン。',
+    storage:'冷蔵庫で3ヶ月',bg:'bg-amber'
+  },
+  {
+    id:'k2',emoji:'🍶',name:'醤油麹',type:'醤油麹',period:'1〜2週間（常温）',
+    desc:'旨味が凝縮。刺身・炒め物・ドレッシングに万能',
+    ingredients:['醤油 200〜300ml','米麹 100g','湯（60℃位） 30ml','乾燥こんぶ 少々','かつおぶし 少々','しいたけ（乾） 少々','ごま 少々','大葉 10〜30枚'],
+    steps:[
+      '米麹をほぐして清潔な瓶に入れる',
+      '醤油・60℃のお湯を注いでよく混ぜる',
+      'こんぶ・かつおぶし・しいたけ・ごまを加える',
+      '大葉を刻んで加え、さらに混ぜる',
+      '常温で1〜2週間、毎日かき混ぜる',
+      '麹粒が柔らかくなり旨味が出てきたら完成'
+    ],
+    point:'大葉・こんぶ・かつおぶしが旨味の決め手。醤油が少なくなったら足してOK。',
+    storage:'冷蔵庫で6ヶ月',bg:'bg-chestnut'
+  },
+  {
+    id:'k3',emoji:'🧅',name:'玉ねぎ麹',type:'その他',period:'ヨーグルトメーカー60℃ 6時間',
+    desc:'玉ねぎの甘みと麹の旨味が溶け合う万能うま味調味料',
+    ingredients:['玉ねぎ 大1個（400g）','米麹 100g','塩 80g'],
+    steps:[
+      '玉ねぎをすりおろす（またはフードプロセッサーで細かく）',
+      '米麹・塩と合わせてよく混ぜる',
+      'ヨーグルトメーカーに入れ、60℃で6時間保温する',
+      'とろりとして甘い香りがしたら完成'
+    ],
+    point:'塩は玉ねぎの重量の20%が目安。ヨーグルトメーカーがなければ炊飯器の保温モードでもOK。',
+    storage:'冷蔵庫で3ヶ月',bg:'bg-moss'
+  },
+  {
+    id:'k4',emoji:'🧄',name:'にんにく麹',type:'その他',period:'1週間（常温）',
+    desc:'にんにくの旨味が麹で丸くなる。炒め物・ドレッシングに',
+    ingredients:['にんにく 50〜100g','米麹 200g','塩 75g','水 250ml'],
+    steps:[
+      'にんにくをみじん切りまたはすりおろす',
+      '米麹・塩・水と合わせてよく混ぜる',
+      '清潔な瓶に入れ常温で1週間、1日1回かき混ぜる',
+      '麹が柔らかくなり香りがまとまったら完成'
+    ],
+    point:'にんにくの量は50〜100gでお好みで。熟成が進むほどまろやかな風味になります。',
+    storage:'冷蔵庫で3ヶ月',bg:'bg-slate'
+  },
+  {
+    id:'k5',emoji:'🍅',name:'トマト麹',type:'その他',period:'1週間（常温）',
+    desc:'トマトの酸味と麹の旨味。パスタ・スープ・炒め物に',
+    ingredients:['トマト 400g','米麹 200g','塩 60g'],
+    steps:[
+      'トマトをざく切りにする（またはミキサーで粗く潰す）',
+      '米麹・塩と合わせてよく混ぜる',
+      '清潔な瓶に入れ、1日1回混ぜながら常温で1週間熟成',
+      'トマトが崩れて全体がまとまったら完成'
+    ],
+    point:'トマトの水分だけで仕込むのがポイント。完熟トマトを使うと甘みが増します。',
+    storage:'冷蔵庫で2週間',bg:'bg-garnet'
+  },
+  {
+    id:'k6',emoji:'🍋',name:'レモン麹',type:'その他',period:'5〜7日（常温）',
+    desc:'爽やかな酸味と麹の旨味。サラダ・魚料理・ドリンクに',
+    ingredients:['レモン 2個','米麹 100g','塩 40〜60g','塩水 40〜60ml'],
+    steps:[
+      'レモンをよく洗い、皮ごと薄切りまたはみじん切りにする',
+      '米麹・塩・塩水と合わせてよく混ぜる',
+      '清潔な瓶に入れ、常温で5〜7日熟成',
+      '1日1回かき混ぜ、とろりとしたら完成'
+    ],
+    point:'国産レモンなら皮ごと使うとより香り豊か。塩の量はレモンの酸味に合わせて調整を。',
+    storage:'冷蔵庫で1ヶ月',bg:'bg-plum'
+  },
+  {
+    id:'k7',emoji:'🫘',name:'あずき麹',type:'あずき麹',period:'保温60℃ 8時間',
+    desc:'もち米×小豆×米麹。甘みと旨味が凝縮した発酵調味料',
+    ingredients:['小豆 500g','水（小豆炊き用） 1500ml','米麹 500g','もち米 300g','水（もち米用） 450ml','塩 少々'],
+    steps:[
+      'もち米を洗い、炊飯器で炊く（水450ml）',
+      '小豆を洗い、フライパンで5分ほど煎る',
+      '煎った小豆を炊飯器に移し、玄米炊きモードで炊く（水1500ml）',
+      '炊き上がったもち米・小豆を60℃まで冷ます',
+      'もち米・小豆・米麹をよく混ぜる',
+      '塩少々を加えてさらに混ぜる',
+      '保温60℃で8時間保つ（炊飯器の保温モードが便利）'
+    ],
+    point:'60℃をキープするのがポイント。高すぎると麹菌が死ぬので温度計で確認を。とろりと甘い香りがしてきたら完成のサイン。',
+    storage:'冷蔵庫で2週間',bg:'bg-amber'
+  },
+];
+
+// ==================== LOAD/SAVE ====================
+function load(){
+  try{const r=localStorage.getItem(DB);kojis=r?JSON.parse(r):[...SAMPLES];}catch{kojis=[...SAMPLES];}
+  try{const f=localStorage.getItem(FRIDGE_DB);fridge=f?JSON.parse(f):[];}catch{fridge=[];}
+}
+function saveKojis(){localStorage.setItem(DB,JSON.stringify(kojis));}
+function saveFridge(){localStorage.setItem(FRIDGE_DB,JSON.stringify(fridge));}
+
+// ==================== SCREENS ====================
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){showScreen('screenHome');renderKojis();}
+function goDetail(){showScreen('screenDetail');}
+function goBack(){showScreen('screenCooking');}
+
+// ==================== HOME ====================
+function renderKojis(){
+  const grid=document.getElementById('kojiGrid');
+  grid.innerHTML='';
+  if(!kojis.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#bbb;font-size:0.85rem;">＋ボタンで麹レシピを追加しましょう</div>';
+    return;
+  }
+  kojis.forEach((k,i)=>{
+    const c=document.createElement('div');
+    c.className='koji-card';
+    c.style.animationDelay=`${i*0.06}s`;
+    c.innerHTML=`
+      <div class="koji-card-thumb ${k.bg}">
+        <span>${k.emoji}</span>
+        <span class="koji-type-badge">${k.type}</span>
+      </div>
+      <div class="koji-card-body">
+        <div class="koji-card-name">${k.name}</div>
+        <div class="koji-card-desc">${k.desc||''}</div>
+        <div class="koji-card-meta"><span>⏳ ${k.period}</span><span>📦 ${k.storage||'要冷蔵'}</span></div>
+      </div>`;
+    c.addEventListener('click',()=>openDetail(k.id));
+    grid.appendChild(c);
+  });
+}
+
+// ==================== DETAIL ====================
+function openDetail(id){
+  curKojiId=id;
+  const k=kojis.find(x=>x.id===id);
+  document.getElementById('detailHero').className=`koji-detail-hero ${k.bg}`;
+  document.getElementById('detailEmoji').textContent=k.emoji;
+  document.getElementById('detailType').textContent=k.type;
+  document.getElementById('detailName').textContent=k.name;
+  document.getElementById('detailDesc').textContent=k.desc||'';
+  document.getElementById('detailMeta').innerHTML=`
+    <div class="kdmi"><div class="v">${k.period}</div><div class="l">仕込み期間</div></div>
+    <div class="kdmi"><div class="v">${k.ingredients.length}</div><div class="l">材料数</div></div>
+    <div class="kdmi"><div class="v">${k.storage||'要冷蔵'}</div><div class="l">保存</div></div>`;
+  document.getElementById('detailIngChips').innerHTML=k.ingredients.map(i=>`<span class="ing-chip">${i}</span>`).join('');
+  document.getElementById('detailSteps').innerHTML=k.steps.map((s,i)=>`<div class="step-item"><span class="step-n">${i+1}</span><span>${s}</span></div>`).join('');
+  document.getElementById('detailPoint').innerHTML=k.point?`<div class="point-box">💡 ${k.point}</div>`:'';
+  showScreen('screenDetail');
+}
+
+function editCurrentKoji(){
+  openAddSheet(curKojiId);
+}
+
+// ==================== COOKING ====================
+function goCooking(){
+  const k=kojis.find(x=>x.id===curKojiId);
+  document.getElementById('ckEmoji').textContent=k.emoji;
+  document.getElementById('ckName').textContent=k.name;
+  selIngs=[];renderSelIngs();
+  renderQuickIngs();renderFridgeList();
+  showScreen('screenCooking');
+}
+
+// 食材
+function addIngredient(){
+  const inp=document.getElementById('ingInput');
+  const val=inp.value.trim();
+  if(!val)return;
+  val.split(/[、,，\s]+/).filter(x=>x).forEach(v=>{if(!selIngs.includes(v))selIngs.push(v);});
+  inp.value='';renderSelIngs();
+}
+function removeIng(v){selIngs=selIngs.filter(x=>x!==v);renderSelIngs();}
+function renderSelIngs(){
+  const el=document.getElementById('selectedIngs');
+  if(!selIngs.length){el.innerHTML='<span class="no-ing">食材を追加してください</span>';return;}
+  el.innerHTML=selIngs.map(v=>`<span class="sel-chip" onclick="removeIng('${v}')">${v} <span class="rm">✕</span></span>`).join('');
+}
+
+function renderQuickIngs(){
+  const el=document.getElementById('quickIngs');
+  el.innerHTML=QUICK_FOODS.map(f=>{
+    const isSel=selIngs.includes(f);
+    return `<button class="quick-btn ${isSel?'sel':''}" onclick="toggleQuick('${f}')">${f}</button>`;
+  }).join('');
+}
+function toggleQuick(f){
+  if(selIngs.includes(f))selIngs=selIngs.filter(x=>x!==f);
+  else selIngs.push(f);
+  renderSelIngs();renderQuickIngs();renderFridgeList();
+}
+
+// 冷蔵庫
+function toggleFridge(){
+  const p=document.getElementById('fridgePanel');
+  const a=document.getElementById('fridgeArrow');
+  p.classList.toggle('open');
+  a.textContent=p.classList.contains('open')?'▲':'▼';
+}
+function addFridge(){
+  const inp=document.getElementById('fridgeInput');
+  const val=inp.value.trim();
+  if(!val||fridge.includes(val))return;
+  fridge.push(val);saveFridge();inp.value='';renderFridgeList();
+  document.getElementById('fridgeCount').textContent=`(${fridge.length})`;
+}
+function removeFridge(v){fridge=fridge.filter(x=>x!==v);saveFridge();renderFridgeList();document.getElementById('fridgeCount').textContent=fridge.length?`(${fridge.length})`:''; }
+function renderFridgeList(){
+  const el=document.getElementById('fridgeList');
+  document.getElementById('fridgeCount').textContent=fridge.length?`(${fridge.length})`:'';
+  if(!fridge.length){el.innerHTML='<span style="font-size:0.75rem;color:#bbb;">食材を登録してください</span>';return;}
+  el.innerHTML=fridge.map(f=>{
+    const isSel=selIngs.includes(f);
+    return `<span class="fridge-chip ${isSel?'sel':''}" onclick="toggleFridgeItem('${f}')">
+      ${isSel?'✓':''} ${f}
+      <span class="del" onclick="event.stopPropagation();removeFridge('${f}')">✕</span>
+    </span>`;
+  }).join('');
+}
+function toggleFridgeItem(f){
+  if(selIngs.includes(f))selIngs=selIngs.filter(x=>x!==f);
+  else selIngs.push(f);
+  renderSelIngs();renderQuickIngs();renderFridgeList();
+}
+
+// ==================== GENERATE ====================
+async function generateRecipe(){
+  if(!selIngs.length){alert('食材を1つ以上選んでください');return;}
+  const k=kojis.find(x=>x.id===curKojiId);
+  const servings=document.getElementById('servings').value;
+  const cookTime=document.getElementById('cookTime').value;
+  const difficulty=document.getElementById('difficulty').value;
+
+  document.getElementById('rkEmoji').textContent=k.emoji;
+  document.getElementById('rkName').textContent=k.name;
+  document.getElementById('aiLoadingArea').style.display='flex';
+  document.getElementById('resultBody').style.display='none';
+  showScreen('screenResult');
+
+  const prompt=`あなたは麹料理の専門家です。以下の条件で美味しいレシピを1品考えてください。
+
+【使う麹調味料】${k.name}（${k.type}）
+【食材】${selIngs.join('、')}
+【人数】${servings}人分
+【調理時間】${cookTime}
+【難易度】${difficulty}
+
+以下のJSON形式のみで返してください。説明文・マークダウン不要。
+
+{
+  "title": "料理名",
+  "subtitle": "料理の一言紹介（30文字以内）",
+  "time": "調理時間（例：25分）",
+  "servings": "${servings}",
+  "difficulty": "${difficulty}",
+  "koji_usage": "${k.name}の使い方ポイント（1文）",
+  "ingredients": ["${k.name} 大さじ2", "食材1 分量", "食材2 分量"],
+  "steps": ["手順1", "手順2", "手順3"],
+  "point": "仕上げのコツや麹の活かし方（2文以内）"
+}`;
+
+  try{
+    const res=await fetch('/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'recipe',prompt})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'生成失敗');
+    const parsed=JSON.parse(data.text.replace(/```json|```/g,'').trim());
+    renderResult(parsed,k);
+  }catch(err){
+    document.getElementById('aiLoadingArea').style.display='none';
+    document.getElementById('resultBody').style.display='block';
+    document.getElementById('resultBody').innerHTML=`<div style="text-align:center;padding:40px 20px;color:#c44;">
+      <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+      <div style="font-size:0.88rem;">生成に失敗しました。<br>もう一度お試しください。</div>
+      <button onclick="goBack()" style="margin-top:16px;background:var(--gold);border:none;padding:10px 20px;border-radius:8px;font-family:inherit;cursor:pointer;">やり直す</button>
+    </div>`;
+  }
+}
+
+function renderResult(r,k){
+  document.getElementById('aiLoadingArea').style.display='none';
+  const body=document.getElementById('resultBody');
+  body.innerHTML=`
+    <div class="result-title">${r.title}</div>
+    <div class="result-subtitle">${r.subtitle||''}</div>
+    <div class="result-meta">
+      <div class="rmi"><div class="v">⏱ ${r.time}</div><div class="l">調理時間</div></div>
+      <div class="rmi"><div class="v">${r.servings}人分</div><div class="l">分量</div></div>
+      <div class="rmi"><div class="v">${r.difficulty}</div><div class="l">難易度</div></div>
+    </div>
+    <div style="background:var(--gold-dim);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.78rem;color:var(--ink2);">
+      🫙 <strong style="color:var(--gold);">${k.name}</strong>の使い方：${r.koji_usage||''}
+    </div>
+    <div class="result-sec">材 料</div>
+    <div class="result-ings">${(r.ingredients||[]).map(i=>`<span class="result-ing-chip">${i}</span>`).join('')}</div>
+    <div class="result-sec">作 り 方</div>
+    ${(r.steps||[]).map((s,i)=>`<div class="result-step"><span class="step-n">${i+1}</span><span>${s}</span></div>`).join('')}
+    ${r.point?`<div class="result-point">💡 ${r.point}</div>`:''}
+    <div class="result-actions">
+      <button class="btn-save-result" onclick="saveResult(${JSON.stringify(r).replace(/"/g,'&quot;')})">📥 レシピを保存</button>
+      <button class="btn-retry" onclick="goBack()">↩ やり直す</button>
+    </div>`;
+  body.style.display='block';
+}
+
+function saveResult(r){
+  alert(`「${r.title}」を保存しました！\n（保存機能は今後拡張予定）`);
+}
+
+// ==================== ADD/EDIT KOJI SHEET ====================
+function openAddSheet(editId=null){
+  document.getElementById('editKojiId').value=editId||'';
+  document.getElementById('addSheetTitle').textContent=editId?'✏️ 麹レシピを編集':'✚ 麹レシピを追加';
+  document.getElementById('btnDeleteKoji').style.display=editId?'inline':'none';
+
+  if(editId){
+    const k=kojis.find(x=>x.id===editId);
+    document.getElementById('f-name').value=k.name;
+    document.getElementById('f-type').value=k.type;
+    document.getElementById('f-period').value=k.period||'';
+    document.getElementById('f-desc').value=k.desc||'';
+    document.getElementById('f-ing').value=k.ingredients.join('\n');
+    document.getElementById('f-steps').value=k.steps.join('\n');
+    document.getElementById('f-point').value=k.point||'';
+    document.getElementById('f-storage').value=k.storage||'';
+    document.getElementById('f-bg').value=k.bg||'bg-amber';
+    setKojiEmoji(k.emoji);
+  }else{
+    ['f-name','f-period','f-desc','f-ing','f-steps','f-point','f-storage'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-bg').value='bg-amber';
+    setKojiEmoji('🫙');
+  }
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAddSheet(){document.getElementById('addOverlay').classList.remove('open');}
+
+function selKojiEmoji(btn){
+  document.querySelectorAll('#kojiEmojiPicker .ep').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function setKojiEmoji(val){
+  document.querySelectorAll('#kojiEmojiPicker .ep').forEach(b=>b.classList.toggle('sel',b.dataset.e===val));
+}
+function getKojiEmoji(){
+  const s=document.querySelector('#kojiEmojiPicker .ep.sel');
+  return s?s.dataset.e:'🫙';
+}
+
+function saveKoji(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('名前を入力してください');return;}
+  const editId=document.getElementById('editKojiId').value;
+  const data={
+    emoji:getKojiEmoji(),name,
+    type:document.getElementById('f-type').value,
+    period:document.getElementById('f-period').value.trim(),
+    desc:document.getElementById('f-desc').value.trim(),
+    ingredients:document.getElementById('f-ing').value.split('\n').filter(x=>x.trim()),
+    steps:document.getElementById('f-steps').value.split('\n').filter(x=>x.trim()),
+    point:document.getElementById('f-point').value.trim(),
+    storage:document.getElementById('f-storage').value.trim(),
+    bg:document.getElementById('f-bg').value,
+  };
+  if(editId){const i=kojis.findIndex(x=>x.id===editId);kojis[i]={...kojis[i],...data};}
+  else{kojis.unshift({id:'k_'+Date.now(),...data});}
+  saveKojis();closeAddSheet();
+  if(editId){openDetail(editId);}else{renderKojis();}
+}
+
+function deleteCurrentKoji(){
+  const editId=document.getElementById('editKojiId').value;
+  if(!editId)return;
+  if(!confirm('この麹レシピを削除しますか？'))return;
+  kojis=kojis.filter(x=>x.id!==editId);
+  saveKojis();closeAddSheet();goHome();
+}
+
+// ==================== SCAN SHEET ====================
+function openScanSheet(){resetScan();document.getElementById('scanOverlay').classList.add('open');}
+function closeScanSheet(){document.getElementById('scanOverlay').classList.remove('open');}
+
+function onFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=(ev)=>{
+    scanImgB64=ev.target.result.split(',')[1];
+    document.getElementById('prevImg').src=ev.target.result;
+    document.getElementById('dropZone').style.display='none';
+    document.getElementById('imgPrev').style.display='block';
+    document.getElementById('btnAIRead').disabled=false;
+    document.getElementById('parsedOk').style.display='none';
+    document.getElementById('aiScanLoading').style.display='none';
+  };
+  rd.readAsDataURL(f);
+}
+function resetScan(){
+  scanImgB64=null;
+  document.getElementById('fileInput').value='';
+  document.getElementById('dropZone').style.display='block';
+  document.getElementById('imgPrev').style.display='none';
+  document.getElementById('btnAIRead').disabled=true;
+  document.getElementById('parsedOk').style.display='none';
+  document.getElementById('aiScanLoading').style.display='none';
+}
+
+async function runScanAI(){
+  if(!scanImgB64)return;
+  document.getElementById('aiScanLoading').style.display='block';
+  document.getElementById('parsedOk').style.display='none';
+  document.getElementById('btnAIRead').disabled=true;
+  try{
+    const res=await fetch('/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'scan',imageBase64:scanImgB64})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'読み取り失敗');
+    const p=JSON.parse(data.text.replace(/```json|```/g,'').trim());
+    // 読み取り結果をaddシートのフォームに転記して開く
+    closeScanSheet();
+    document.getElementById('editKojiId').value='';
+    document.getElementById('addSheetTitle').textContent='📷 手書きから作成（確認・修正）';
+    document.getElementById('btnDeleteKoji').style.display='none';
+    document.getElementById('f-name').value=p.name||'';
+    document.getElementById('f-type').value=p.type||'その他';
+    document.getElementById('f-period').value=p.period||'';
+    document.getElementById('f-desc').value=p.desc||'';
+    document.getElementById('f-ing').value=(p.ingredients||[]).join('\n');
+    document.getElementById('f-steps').value=(p.steps||[]).join('\n');
+    document.getElementById('f-point').value=p.point||'';
+    document.getElementById('f-storage').value=p.storage||'';
+    document.getElementById('f-bg').value='bg-amber';
+    setKojiEmoji('🫙');
+    document.getElementById('addOverlay').classList.add('open');
+  }catch(err){
+    document.getElementById('aiScanLoading').style.display='none';
+    document.getElementById('btnAIRead').disabled=false;
+    alert('読み取りに失敗しました。もう一度お試しください。');
+  }
+}
+
+// overlay bg close
+['addOverlay','scanOverlay'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    if(e.target.id===id)document.getElementById(id).classList.remove('open');
+  });
+});
+
+// drag & drop
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')){onFile({target:{files:[f]}});}
+});
+
+// ==================== INIT ====================
+load();
+renderKojis();
+</script>
+</body>
+</html>
