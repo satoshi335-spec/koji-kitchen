@@ -1,17 +1,3 @@
-では別の方法で行きましょう！
-
-**「Cancel」を押して**、この画面を閉じてください。
-
-代わりにGitHubで直接ファイルを作ります：
-
-1. リポジトリトップ（`koji-kitchen`）に戻る
-2. **「Add file」→「Create new file」** をクリック
-3. ファイル名の入力欄に **`api/generate.js`** と入力
-   - `api/` と打った瞬間に自動でフォルダになります
-4. 下の大きな入力欄にコードを貼り付ける
-
-コードをここに用意します👇以下のコードを**全部コピー**して貼り付けてください：
-
 ```javascript
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
