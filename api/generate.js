@@ -1,4 +1,3 @@
-```javascript
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -60,6 +59,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
-```
-
-ファイル名を **`api/generate.js`** にして「Commit changes」を押してください！
