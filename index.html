@@ -82,6 +82,36 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--cream);color:
 .koji-card-desc{font-size:0.68rem;color:var(--ink2);line-height:1.5;}
 .koji-card-meta{display:flex;gap:8px;margin-top:7px;font-size:0.62rem;color:#aaa;}
 
+/* ===== 四毒抜きモード ===== */
+.shidoku-bar{
+  background:var(--warm);border-bottom:1px solid var(--border);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+}
+.shidoku-btn{
+  display:flex;align-items:center;gap:8px;
+  background:white;border:2px solid var(--border);
+  border-radius:24px;padding:8px 16px;cursor:pointer;
+  font-family:inherit;font-size:0.82rem;color:var(--ink2);
+  transition:all 0.25s;font-weight:500;
+}
+.shidoku-btn.on{
+  background:var(--ink);border-color:var(--ink);color:var(--gold);font-weight:700;
+}
+.shidoku-btn .icon{font-size:1.1rem;}
+.shidoku-badge{
+  display:none;background:var(--ink);color:var(--gold);
+  font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;
+  letter-spacing:0.05em;
+}
+.shidoku-btn.on .shidoku-badge{display:inline;}
+.shidoku-note{
+  display:none;background:#1a120c;border-radius:8px;
+  padding:8px 14px;margin:0 16px 10px;
+  font-size:0.72rem;color:#c8883a;line-height:1.6;
+}
+.shidoku-note.show{display:block;}
+.shidoku-avoid{color:#e07050;font-weight:700;}
+
 .fab-add{
   position:fixed;bottom:22px;right:18px;
   background:var(--gold);color:var(--ink);border:none;
@@ -364,6 +394,18 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--cream);color:
     <div class="hero-title">麹調味料から<br>はじまる料理</div>
     <div class="hero-sub">麹の仕込み方を記録 → その麹でレシピをAI生成</div>
   </div>
+  <div class="shidoku-bar">
+    <div style="font-size:0.75rem;color:var(--ink2);">食材の制限</div>
+    <button class="shidoku-btn" id="shidokuBtn" onclick="toggleShidoku()">
+      <span class="icon">🚫</span>
+      <span id="shidokuLabel">四毒抜きモード</span>
+      <span class="shidoku-badge">ON</span>
+    </button>
+  </div>
+  <div class="shidoku-note" id="shidokuNote">
+    <span class="shidoku-avoid">除外：小麦・乳製品・植物油・砂糖類</span><br>
+    麹の力で旨味を引き出す、体に優しいレシピを生成します
+  </div>
   <div class="section-label">麹調味料レシピ</div>
   <div class="koji-grid" id="kojiGrid"></div>
   <button class="fab-add" onclick="openAddSheet()" title="麹レシピを追加">＋</button>
@@ -585,6 +627,11 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--cream);color:
 const DB = 'koji_main_v1';
 const FRIDGE_DB = 'koji_fridge_v1';
 let kojis = [], fridge = [], selIngs = [], curKojiId = null, scanImgB64 = null;
+let shidokuMode = false;
+const SHIDOKU_AVOID = ['小麦','薄力粉','強力粉','中力粉','パン粉','パスタ','うどん','そうめん','ラーメン','小麦粉',
+  '牛乳','チーズ','バター','生クリーム','ヨーグルト','乳製品',
+  'サラダ油','植物油','マーガリン','ショートニング','キャノーラ油',
+  '砂糖','上白糖','グラニュー糖','みりん','はちみつ','メープルシロップ','ジュース'];
 
 const QUICK_FOODS = ['鶏肉','豚肉','牛肉','鮭','白身魚','豆腐','卵','キャベツ','玉ねぎ','じゃがいも','にんじん','大根','なす','トマト','ほうれん草','きのこ','ごぼう','白米','パスタ'];
 
@@ -841,13 +888,16 @@ async function generateRecipe(){
   document.getElementById('resultBody').style.display='none';
   showScreen('screenResult');
 
+  const shidokuText = shidokuMode ?
+    '\n【四毒抜きモード】以下を一切使用しないこと：小麦・薄力粉・パスタ・うどんなどの小麦製品、牛乳・チーズ・バター・生クリームなどの乳製品、サラダ油・植物油・マーガリンなどの植物油脂、砂糖・みりん・はちみつなどの甘味料。麹の旨味と自然な甘みを最大限に活かすこと。' : '';
+
   const prompt=`あなたは麹料理の専門家です。以下の条件で美味しいレシピを1品考えてください。
 
 【使う麹調味料】${k.name}（${k.type}）
 【食材】${selIngs.join('、')}
 【人数】${servings}人分
 【調理時間】${cookTime}
-【難易度】${difficulty}
+【難易度】${difficulty}${shidokuText}
 
 以下のJSON形式のみで返してください。説明文・マークダウン不要。
 
@@ -887,8 +937,9 @@ async function generateRecipe(){
 function renderResult(r,k){
   document.getElementById('aiLoadingArea').style.display='none';
   const body=document.getElementById('resultBody');
+  const shidokuBadge = shidokuMode ? '<span style="display:inline-block;background:var(--ink);color:var(--gold);font-size:0.65rem;font-weight:700;padding:2px 10px;border-radius:10px;letter-spacing:0.05em;margin-bottom:10px;">🚫 四毒抜きレシピ</span><br>' : '';
   body.innerHTML=`
-    <div class="result-title">${r.title}</div>
+    ${shidokuBadge}<div class="result-title">${r.title}</div>
     <div class="result-subtitle">${r.subtitle||''}</div>
     <div class="result-meta">
       <div class="rmi"><div class="v">⏱ ${r.time}</div><div class="l">調理時間</div></div>
@@ -1065,6 +1116,16 @@ dz.addEventListener('drop',e=>{
 });
 
 // ==================== INIT ====================
+function toggleShidoku(){
+  shidokuMode=!shidokuMode;
+  const btn=document.getElementById('shidokuBtn');
+  const note=document.getElementById('shidokuNote');
+  const label=document.getElementById('shidokuLabel');
+  btn.classList.toggle('on',shidokuMode);
+  note.classList.toggle('show',shidokuMode);
+  label.textContent=shidokuMode?'四毒抜き ON':'四毒抜きモード';
+}
+
 load();
 renderKojis();
 </script>
